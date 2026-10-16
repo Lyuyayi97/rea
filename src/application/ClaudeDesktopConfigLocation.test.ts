@@ -194,6 +194,27 @@ describe("unresolved Claude Desktop package identity", () => {
       CLAUDE_DESKTOP_PACKAGE_FAMILY.toUpperCase(),
     );
   });
+
+  it("reports a Store package whose family carries a publisher prefix", () => {
+    // 6.5.0 answered `AnthropicPBC.Claude_*` with the AppData fallback, because
+    // the anchored family pattern rejected the dotted package name before the
+    // unrecognized-publisher guard could see it.
+    const storeFamily = "AnthropicPBC.Claude_fnn82j28hfe8t";
+    const location = resolveWindowsClaudeDesktopLocation(home, env, {
+      readdir: () => [storeFamily],
+      lstat: () => {
+        throw failure("ENOENT");
+      },
+      realpath: (path) => path,
+    });
+    expect(location).toEqual({
+      ok: false,
+      error: {
+        path: join(packages, storeFamily),
+        message: expect.stringContaining("unrecognized publisher"),
+      },
+    });
+  });
 });
 
 describe("package-private REA launchers", () => {

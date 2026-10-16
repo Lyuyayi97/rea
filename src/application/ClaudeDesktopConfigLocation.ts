@@ -19,8 +19,18 @@ const PROCESS_VIEW_PROBES = 8;
  */
 export const CLAUDE_DESKTOP_PACKAGE_FAMILY = "Claude_pzs8sxrjxfjjc";
 
-/** `Claude_` plus a 13-character Crockford base32 MSIX publisher ID. */
-const CLAUDE_PACKAGE_FAMILY = /^Claude_[0-9a-hjkmnp-tv-z]{13}$/iu;
+/**
+ * `<package name>_<publisher ID>` for a Claude Desktop MSIX package: the package
+ * name is `Claude` for the direct-download build and carries a publisher prefix
+ * such as `AnthropicPBC.Claude` for Store builds, and the publisher ID is 13
+ * Crockford base32 characters.
+ *
+ * A Store build signs with a different publisher ID, so its family never equals
+ * `CLAUDE_DESKTOP_PACKAGE_FAMILY`. The dotted prefix must still be matched here so
+ * that such a package reaches the unrecognized-publisher guard instead of being
+ * filtered out and silently answered with the AppData fallback.
+ */
+const CLAUDE_PACKAGE_FAMILY = /^(?:[A-Za-z0-9.-]+\.)?Claude_[0-9a-hjkmnp-tv-z]{13}$/iu;
 
 /** The configuration Claude Desktop reads and the evidence that it is installed. */
 export interface ClaudeDesktopLocation {
